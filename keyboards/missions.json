@@ -1,0 +1,37 @@
+{
+    "one_time": false,
+    "buttons": [
+      [{
+       "action": {
+         "type": "text",
+         "payload": "{\"button\": \"2\"}",
+         "label": "&#128299;Секретная миссия"
+       }, "color": "negative"
+     }] ,
+       [{
+         "action": {
+           "type": "text",
+           "payload": "{\"button\": \"2\"}",
+           "label": "&#128481;Одиночный рейд"
+         }, "color": "negative"
+       }] ,
+       [{
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#128737;Совместный рейд"
+        }, "color": "negative"
+       }
+
+     ],
+      [
+        {
+          "action": {
+            "type": "text",
+            "payload": "{\"button\": \"2\"}",
+            "label": "Назад"
+          }, "color": "secondary"
+        }
+      ]
+    ]
+}

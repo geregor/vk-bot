@@ -1,0 +1,58 @@
+{
+  "one_time": false ,
+  "buttons": [
+    [
+      {
+        "action": {
+          "type": "text" ,
+          "payload": "{\"button\": \"2\"}" ,
+          "label": "&#128100;Профиль"
+        } ,
+        "color": "positive"
+      } ,
+      {
+        "action": {
+          "type": "text" ,
+          "payload": "{\"button\": \"2\"}" ,
+          "label": "&#9876;Миссии"
+        }, "color": "negative"
+      } ,
+      {
+        "action": {
+          "type": "text" ,
+          "payload": "{\"button\": \"2\"}" ,
+          "label": "&#9993;Помощь"
+        }, "color": "primary"
+      }
+    ] ,
+    [
+      {
+        "action": {
+          "type": "text" ,
+          "payload": "{\"button\": \"2\"}" ,
+          "label": "&#127917;Отряд"
+        } ,
+        "color": "secondary"
+      } ,
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#128196;Склад"
+        }
+      },
+      {
+        "action": {
+          "type": "text" ,
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#128176;Финансы"
+        }
+
+      }
+    ]
+  ]
+}
+
+
+
+

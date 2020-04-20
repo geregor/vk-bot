@@ -1,0 +1,45 @@
+{
+  "one_time": false,
+  "buttons": [
+      [{
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#128122;Распустить отряд"
+        },
+        "color": "negative"
+      }],[
+      {
+        "action": {
+          "type" : "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#10060;Удалить с отряда"
+        }, "color": "primary"
+      }
+    ],[
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#8505;Состав отряда"
+        }, "color": "primary"
+      }
+    ],[
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#127915;О-инфо"
+        },
+        "color": "secondary"
+      },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Назад"
+        }, "color": "secondary"
+      }
+    ]
+  ]
+}

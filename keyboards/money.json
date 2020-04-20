@@ -1,0 +1,59 @@
+{
+  "one_time": false,
+  "buttons": [
+      [
+        {
+          "action": {
+            "type": "text" ,
+            "payload": "{\"button\": \"2\"}" ,
+            "label": "Собрать деньги с завода&#128178;"
+          }, "color": "positive"
+        }
+        ],[
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Пополнить VKCoin&#128184;&#128200;"
+        },
+        "color": "primary"
+      },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Вывести VKCoin&#128184;&#128201;"
+        }, "color": "primary"
+      }
+    ],[{
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Казино&#127922;"
+        }, "color": "primary"
+      },{
+         "action": {
+           "type": "text",
+           "payload": "{\"button\": \"2\"}",
+           "label": "Рефералка&#128101;"
+         }, "color": "primary"
+    }],
+    [
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "З-инфо"
+        },
+        "color": "secondary"
+      },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Назад"
+        }, "color": "secondary"
+      }
+    ]
+  ]
+}

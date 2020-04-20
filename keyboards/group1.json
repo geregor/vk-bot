@@ -1,0 +1,38 @@
+{
+  "one_time": false,
+  "buttons": [
+    [
+      { "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#127917;Вступить в отряд"
+        },
+        "color": "positive"
+      } ],
+      [{
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#128483;Создать отряд"
+        },
+        "color": "positive"
+      }],
+    [
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#127915;О-инфо"
+        },
+        "color": "primary"
+      },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Назад"
+        }, "color": "primary"
+      }
+    ]
+  ]
+}

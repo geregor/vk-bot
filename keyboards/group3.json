@@ -1,0 +1,46 @@
+{
+  "one_time": false,
+  "buttons": [
+    [
+      { "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#9989;Создать рандомно"
+        },
+        "color": "positive"
+      } ],
+      [{
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#10004;Создать свой"
+        },
+        "color": "positive"
+      }],
+    [
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#127915;О-инфо"
+        },
+        "color": "primary"
+      },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "&#127917;Вступить в отряд"
+        }, "color": "primary"
+      }
+    ], [
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Назад"
+        }, "color": "secondary"
+      }
+    ]
+  ]
+}

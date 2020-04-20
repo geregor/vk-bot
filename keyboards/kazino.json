@@ -1,0 +1,31 @@
+{
+  "one_time": false,
+  "buttons": [
+      [
+        {
+          "action": {
+            "type": "text" ,
+            "payload": "{\"button\": \"2\"}" ,
+            "label": "Ставка 10"
+          } ,
+          "color": "positive"
+        },
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Ставка 50"
+        },
+        "color": "positive"
+      }],
+    [
+      {
+        "action": {
+          "type": "text",
+          "payload": "{\"button\": \"2\"}",
+          "label": "Назад"
+        }, "color": "primary"
+      }
+    ]
+  ]
+}
