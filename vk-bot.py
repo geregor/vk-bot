@@ -65,7 +65,7 @@ def mission():
 		return raid()
 	elif active == 3 and timeend< timestart:
 		return grouprade()
-	elif (timeend - timestart)/60 > timer * 60:
+	elif (timeend - timestart) > timer * 60:
 		# Итог миссии
 		if active == 1:
 			return mission()
@@ -123,7 +123,7 @@ def raid():
 			timeend = monotonic()+((timer-time2mis)*60)
 			cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 2 WHERE user_id = {event.user_id}")
 			connection.commit()
-	elif (timeend - timestart)/60 > timer*60:
+	elif (timeend - timestart) > timer*60:
 		if active == 1:
 			return mission()
 		if active == 2:
@@ -221,7 +221,7 @@ def grouprade():
 				return mission()
 			elif active == 2 and timeend<timestart:
 				return raid()
-			elif (timeend - timestart)/60 > timer * 60:
+			elif (timeend - timestart) > timer * 60:
 				if active == 1:
 					return mission()
 				if active == 2:
