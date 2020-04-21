@@ -1,14 +1,5 @@
-import pymysql.cursors
+import pymysql.cursorss
 
-users = []
-usercon = 0
-
-#Username: VcJhVl8VY9
-#Database name: VcJhVl8VY9
-#Password: 2szV2WF4BO
-#Server: remotemysql.com
-#Port: 3306
-#These are the username and password to log in to your database and phpMyAdmin
 dhost = os.environ.get('TOKENH')
 duser = os.environ.get('TOKENU')
 dpassword = os.environ.get('TOKENP')
@@ -18,11 +9,11 @@ dcharset = os.environ.get('TOKENC')
 
 def connect():
     connection = pymysql.connect(
-        host=dhost,
-        user=duser,
-        password=dpassword,
-        db=ddb,
-        charset=dcharset,
+        host=str(dhost),
+        user=str(duser),
+        password=str(dpassword),
+        db=str(ddb),
+        charset=str(dcharset),
         cursorclass=pymysql.cursors.DictCursor)
     return connection
 
