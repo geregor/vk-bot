@@ -9,14 +9,20 @@ usercon = 0
 #Server: remotemysql.com
 #Port: 3306
 #These are the username and password to log in to your database and phpMyAdmin
+dhost = os.environ.get('TOKENH')
+duser = os.environ.get('TOKENU')
+dpassword = os.environ.get('TOKENP')
+ddb = os.environ.get('TOKEND')
+dcharset = os.environ.get('TOKENC')
+
 
 def connect():
     connection = pymysql.connect(
-        host='remotemysql.com',
-        user='VcJhVl8VY9',
-        password='2szV2WF4BO',
-        db='VcJhVl8VY9',
-        charset='utf8mb4',
+        host=dhost,
+        user=duser,
+        password=dpassword,
+        db=ddb,
+        charset=dcharset,
         cursorclass=pymysql.cursors.DictCursor)
     return connection
 
