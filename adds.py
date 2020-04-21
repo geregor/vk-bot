@@ -1,19 +1,19 @@
-import pymysql.cursorss
+import pymysql.cursors
 
-dhost = os.environ.get('TOKENH')
-duser = os.environ.get('TOKENU')
-dpassword = os.environ.get('TOKENP')
-ddb = os.environ.get('TOKEND')
-dcharset = os.environ.get('TOKENC')
-
+#Username: VcJhVl8VY9
+#Database name: VcJhVl8VY9
+#Password: 2szV2WF4BO
+#Server: remotemysql.com
+#Port: 3306
+#These are the username and password to log in to your database and phpMyAdmin
 
 def connect():
     connection = pymysql.connect(
-        host=dhost,
-        user=duser,
-        password=dpassword,
-        db=ddb,
-        charset=dcharset,
+        host='remotemysql.com',
+        user='VcJhVl8VY9',
+        password='2szV2WF4BO',
+        db='VcJhVl8VY9',
+        charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor)
     return connection
 
@@ -37,5 +37,4 @@ def connect():
 # 6. Время миссий сокращено на 7 минут 40,000 time2mis
 # 7. Размер отряда увеличен до 30 человек 3,000 otryad
 # 8. 15% к получаемым монетам с миссии 200 fivetybonus
-# 9. 25% к получаемому опыту с миссий 10 twentyfivebonus
-# 10. Время миссий сокращено на 12 минут 0 time2mis
+# 9. 25% к получаемому опыту с мис
