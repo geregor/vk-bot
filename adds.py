@@ -9,11 +9,11 @@ dcharset = os.environ.get('TOKENC')
 
 def connect():
     connection = pymysql.connect(
-        host=str(dhost),
-        user=str(duser),
-        password=str(dpassword),
-        db=str(ddb),
-        charset=str(dcharset),
+        host=dhost,
+        user=duser,
+        password=dpassword,
+        db=ddb,
+        charset=dcharset,
         cursorclass=pymysql.cursors.DictCursor)
     return connection
 
