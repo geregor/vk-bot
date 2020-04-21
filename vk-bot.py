@@ -8,7 +8,7 @@ from connection import register
 import pymysql.cursors
 import re
 import os
-token = os.environ.get('TOKEN')
+token = os.environ.get('BOT_TOKEN')
 
 vk = vk_api.VkApi(token=token)
 vk._auth_token()
