@@ -211,7 +211,7 @@ def grouprade():
 	if 1 in list1 :
 		for i in list1 :
 			if i == 1 :
-				usend ( "[id" + str ( list1 [ i-1 ] ) + "|Участник], не иммет 2 уровня!" )
+				usend ( "[id" + str ( list1 [ i ] ) + "|Участник], не иммет 2 уровня!" )
 				con1 = 1
 	if con1 == 0:
 		if con >= 2:
