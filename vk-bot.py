@@ -64,7 +64,7 @@ def mission():
 		return raid()
 	elif active == 3 and timeend< timestart:
 		return grouprade()
-	elif (timeend - timestart)/60 > timer * 60:
+	elif (timeend - timestart) > timer * 60:
 		# Итог миссии
 		if active == 1:
 			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
@@ -134,7 +134,7 @@ def raid():
 			timeend = monotonic()+((timer-time2mis)*60)
 			cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 2 WHERE user_id = {event.user_id}")
 			connection.commit()
-	elif (timeend - timestart)/60 > timer*60:
+	elif (timeend - timestart) > timer*60:
 		if active == 1:
 			return mission()
 		if active == 2:
@@ -183,7 +183,6 @@ def raid():
 def grouprade():
 	cursor.execute( f"SELECT user_id FROM Users WHERE groupt = {group}" )
 	qq = cursor.fetchall( )
-	list = [ ]
 	con = 0
 	for a in qq:
 		list.append( a )
@@ -212,7 +211,7 @@ def grouprade():
 	if 1 in list1 :
 		for i in list1 :
 			if i == 1 :
-				usend ( "[id" + str ( list1 [ i ] ) + "|Участник], не иммет 2 уровня!" )
+				usend ( "[id" + str ( list1 [ i-1 ] ) + "|Участник], не иммет 2 уровня!" )
 				con1 = 1
 	if con1 == 0:
 		if con >= 2:
@@ -247,7 +246,7 @@ def grouprade():
 				return mission()
 			elif active == 2 and timeend<timestart:
 				return raid()
-			elif (timeend - timestart)/60 > timer * 60:
+			elif (timeend - timestart) > timer * 60:
 				if active == 1:
 					return mission()
 				if active == 2:
@@ -952,7 +951,7 @@ for event in longpoll.listen() :
 										f"UPDATE Users SET groupt = {code},	groupa = 1 WHERE user_id = {event.user_id}" )
 									connection.commit( )
 									send( "[id" + str(
-										event.user_id ) + "|" + first_name + "], вы создали свой отряд. \nЧто бы кто-то присоеденился к вашему отряду пусть он напишет 'Присоеденится " + str(
+										event.user_id ) + "|" + first_name + "], вы создали свой отряд. \nЧто бы кто-то присоеденился к вашему отряду пусть он напишет 'Присоединится " + str(
 										code ) + "'.","group4" )
 								else:
 									send( "[id" + str(
