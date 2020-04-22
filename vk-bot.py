@@ -7,7 +7,7 @@ import pymysql.cursors
 from connection import register
 import pymysql.cursors
 import re
-token = 'a76f40ee367d1e55ec328565fd9b3f7cf754ff558163bf8fcdee2fb70d711ce7e4b03bd5a95c39991de6d'
+token = '9799c7774f89ef20c6503813c849b5d8e74c975c8d340e223f36ba47478108686da041b9214f8483b48cc'
 
 vk = vk_api.VkApi(token=token)
 vk._auth_token()
