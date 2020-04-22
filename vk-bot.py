@@ -203,7 +203,7 @@ def grouprade():
 
 			elif active >= 1 and timeend>timestart:
 				send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - timestart)/60 ) ) + " минут.","missions" )
-			elif timeend<timestart or (timer-monotonic()<=0) or (timeend-timestart<=0)
+			elif timeend<timestart or (timer-monotonic()<=0) or (timeend-timestart<=0):
 				if active == 1:
 					return mission()
 				if active == 2:
