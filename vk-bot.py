@@ -2,7 +2,7 @@ import vk_api
 import random
 from time import monotonic,sleep
 from vk_api.longpoll import VkEventType, VkLongPoll
-from adds import users,connect
+from adds import connect
 import pymysql.cursors
 from connection import register
 import pymysql.cursors
