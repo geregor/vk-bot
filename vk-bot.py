@@ -60,7 +60,7 @@ def mission():
 		connection.commit()
 	elif active >= 1 and timeend>timestart:  # Если миссия еще выполняется
 		send("[id" + str(event.user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-timestart)/60))+" минут.","missions")
-	elif timeend<timestart:
+	elif timeend<timestart or (timer-monotonic()<=0):
 		# Итог миссии
 		if active == 1:
 			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
