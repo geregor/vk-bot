@@ -114,7 +114,7 @@ def raid():
 			timeend = monotonic()+((timer-time2mis)*60)
 			cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 2 WHERE user_id = {event.user_id}")
 			connection.commit()
-	elif timeend<timestart or (timer-monotonic()<=0)
+	elif timeend<timestart or (timer-monotonic()<=0):
 		if active == 1:
 			return mission()
 		if active == 2:
