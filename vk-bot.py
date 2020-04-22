@@ -60,7 +60,7 @@ def mission():
 		connection.commit()
 	elif active >= 1 and timeend>timestart:  # Если миссия еще выполняется
 		send("[id" + str(event.user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-timestart)/60))+" минут.","missions")
-	elif timeend<timestart or (timer-monotonic()<=0) or (timeend - timestart<=0):
+	elif timeend<timestart or (timeend-monotonic()<=0):
 		# Итог миссии
 		if active == 1:
 			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
@@ -114,7 +114,7 @@ def raid():
 			timeend = monotonic()+((timer-time2mis)*60)
 			cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 2 WHERE user_id = {event.user_id}")
 			connection.commit()
-	elif timeend<timestart or (timer-monotonic()<=0) or (timeend-timestart<=0):
+	elif timeend<timestart or (timeend-monotonic()<=0):
 		if active == 1:
 			return mission()
 		if active == 2:
@@ -203,7 +203,7 @@ def grouprade():
 
 			elif active >= 1 and timeend>timestart:
 				send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - timestart)/60 ) ) + " минут.","missions" )
-			elif timeend<timestart or (timer-monotonic()<=0) or (timeend-timestart<=0):
+			elif timeend<timestart or (timeend-monotonic()<=0):
 				if active == 1:
 					return mission()
 				if active == 2:
