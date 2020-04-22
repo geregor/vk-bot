@@ -206,7 +206,7 @@ def grouprade():
 
 							timeend = monotonic()+(timer*60)
 							cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 3 WHERE user_id = {event.user_id}")
-							#connection.commit()
+							connection.commit()
 							cursor.execute(f"SELECT user_id FROM Users WHERE groupt = {groupt}")
 							qq = cursor.fetchall()
 							list = []
