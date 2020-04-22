@@ -56,11 +56,11 @@ def mission():
 			cursor.execute(f"UPDATE Users SET exps = 3, timer = {timer} WHERE user_id = {event.user_id}")
 
 		timeend=monotonic()+((timer-time2mis)*60)
-		cursor.execute(f"UPDATE Users SET mtime = {timeend},active = 1 WHERE user_id = {event.user_id}")
+		cursor.execute(f"UPDATE Users SET mtime = {timeend},timer = {timer},active = 1 WHERE user_id = {event.user_id}")
 		connection.commit()
 	elif active >= 1 and timeend>timestart:  # Если миссия еще выполняется
 		send("[id" + str(event.user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-timestart)/60))+" минут.","missions")
-	elif timeend<timestart or (timeend-monotonic()<=0):
+	elif timeend<timestart or (timeend-monotonic()<=timer*60):
 		# Итог миссии
 		if active == 1:
 			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
@@ -112,9 +112,9 @@ def raid():
 				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
 
 			timeend = monotonic()+((timer-time2mis)*60)
-			cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 2 WHERE user_id = {event.user_id}")
+			cursor.execute(f"UPDATE Users SET mtime = {timeend},timer={timer}, active = 2 WHERE user_id = {event.user_id}")
 			connection.commit()
-	elif timeend<timestart or (timeend-monotonic()<=0):
+	elif timeend<timestart or (timeend-monotonic()<=timer*60):
 		if active == 1:
 			return mission()
 		if active == 2:
@@ -196,14 +196,14 @@ def grouprade():
 							cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
 
 						timeend = monotonic()+(timer*60)
-						cursor.execute(f"UPDATE Users SET mtime = {timeend}, active = 3 WHERE user_id = {event.user_id}")
+						cursor.execute(f"UPDATE Users SET mtime = {timeend},timer={timer} active = 3 WHERE user_id = {event.user_id}")
 						connection.commit()
 					else:
 						send("Вы не глава группы что бы начинать эту миссию!","group5")
 
 			elif active >= 1 and timeend>timestart:
 				send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - timestart)/60 ) ) + " минут.","missions" )
-			elif timeend<timestart or (timeend-monotonic()<=0):
+			elif timeend<timestart or (timeend-monotonic()<=timer*60):
 				if active == 1:
 					return mission()
 				if active == 2:
