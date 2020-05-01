@@ -32,10 +32,10 @@ def mission():
 	qq = cursor.fetchone( )
 	for i,a in qq.items( ):
 		timer = a
-        cursor.execute(f"SELECT mtime FROM Users WHERE user_id={event.user_id}")
-        qq = cursor.fetchone()
-        for i,a in qq.items():
-                timestart=a
+	cursor.execute(f"SELECT mtime FROM Users WHERE user_id={event.user_id}")
+	qq = cursor.fetchone()
+	for i,a in qq.items():
+            timestart=a
 	cursor.execute(f"SELECT mmtime FROM Users WHERE user_id={event.user_id}")  # Получаем время миссии
 	qq=cursor.fetchone()
 	timeend=0
@@ -90,10 +90,11 @@ def raid():
 	qq = cursor.fetchone( )
 	for i,a in qq.items( ):
 		timer = a
-        cursor.exexute(f"SELECT mtime FROM Users WHERE user_id = {event.user_id}")
-        qq = cursor.fetchone()
-        for i,a in qq.items():
-                timestart = a
+	cursor.exexute(f"SELECT mtime FROM Users WHERE user_id = {event.user_id}")
+	qq = cursor.fetchone()
+	for i,a in qq.items():
+		timestart = a
+
 	cursor.execute(f"SELECT mmtime FROM Users WHERE user_id={event.user_id}")  # Получаем время миссии
 	qq=cursor.fetchone()
 	for i,a in qq.items():
@@ -151,13 +152,13 @@ def grouprade():
 	qq = cursor.fetchall( )
 	con = 0
 	list = []
-	for a in qq:
-		list.append( a )
+	for a in qq :
+		list.append ( a )
 		con += 1
-	cursor.execute( f"SELECT mtime FROM Users WHERE user_id = {event.user_id}")
-        qq = cursor.fetchone()
-        for i,a in qq.items():
-                timestart = a
+	cursor.execute ( f"SELECT mtime FROM Users WHERE user_id = {event.user_id}" )
+	qq = cursor.fetchone ( )
+	for i , a in qq.items ( ) :
+		timestart = a
 	cursor.execute( f"SELECT mmtime FROM Users WHERE user_id={event.user_id}" )  # Получаем время миссии
 	qq = cursor.fetchone( )
 	timeend = 0
