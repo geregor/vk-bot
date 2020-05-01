@@ -27,75 +27,79 @@ def sendto(message,user_id,keyboardt):
 def sendtou(message,user_id):
 	vk.method("messages.send",{"peer_id":str(user_id),"random_id":0,"message":str(message)})
 #MIssion начался
-def mission():
-	cursor.execute( f"SELECT timer FROM Users WHERE user_id = {event.user_id}" )
+def mission(user_id):
+	cursor.execute( f"SELECT timer FROM Users WHERE user_id = {user_id}" )
 	qq = cursor.fetchone( )
 	for i,a in qq.items( ):
 		timer = a
-	cursor.execute(f"SELECT mtime FROM Users WHERE user_id={event.user_id}")
-	qq = cursor.fetchone()
-	for i,a in qq.items():
-            timestart=a
-	cursor.execute(f"SELECT mmtime FROM Users WHERE user_id={event.user_id}")  # Получаем время миссии
-	qq=cursor.fetchone()
+	cursor.execute(f"SELECT mtime FROM Users WHERE user_id={user_id}")
+	qq = cursor.fetchone ( )
+	for i , a in qq.items ( ) :
+		timestart = a
+	cursor.execute ( f"SELECT mmtime FROM Users WHERE user_id={user_id}" )  # Получаем время миссии
+	qq = cursor.fetchone ( )
 	timeend=0
 	for i,a in qq.items():
 		timeend=a
-
 	if active==0:  # Одиночная миссия
 		timer=random.choice(range(7,21))
 
 		if timer<=10:
-			send("[id" + str(event.user_id) + "|" + first_name + "], ты начал легкую миссию, это займет "+str(timer)+" минут.","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал легкую миссию, это займет "+str(timer)+" минут.","missions")
 			exps=1
-			cursor.execute(f"UPDATE Users SET exps = 1, timer = {timer} WHERE user_id = {event.user_id}")
+			cursor.execute(f"UPDATE Users SET exps = 1, timer = {timer} WHERE user_id = {user_id}")
 		if timer>=11 and timer<=15:
-			send("[id" + str(event.user_id) + "|" + first_name + "], ты начал среднюю миссию, тебе придется попотеть, что бы выполнить ее тебе понадобится. "+str(timer)+" минут","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал среднюю миссию, тебе придется попотеть, что бы выполнить ее тебе понадобится. "+str(timer)+" минут","missions")
 			exps=2
-			cursor.execute(f"UPDATE Users SET exps = 2, timer = {timer} WHERE user_id = {event.user_id}")
+			cursor.execute(f"UPDATE Users SET exps = 2, timer = {timer} WHERE user_id = {user_id}")
 		if timer>=16:
-			send("[id" + str(event.user_id) + "|" + first_name + "], ты начал сложную миссию. Она займет "+str(timer)+" минут. Удачи.","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал сложную миссию. Она займет "+str(timer)+" минут. Удачи.","missions")
 			exps=3
-			cursor.execute(f"UPDATE Users SET exps = 3, timer = {timer} WHERE user_id = {event.user_id}")
+			cursor.execute(f"UPDATE Users SET exps = 3, timer = {timer} WHERE user_id = {user_id}")
 
 		timeend=monotonic()+((timer-time2mis)*60)
-		cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 1 WHERE user_id = {event.user_id}")
+		cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 1 WHERE user_id = {user_id}")
 		connection.commit()
-	elif active >= 1 and timestart<timeend:  # Если миссия еще выполняется
-		send("[id" + str(event.user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-timestart)/60))+" минут.","missions")
+
 	elif ((timestart < monotonic() < timeend) != True):
 		# Итог миссии
 		if active == 1:
-			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
+			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {user_id}" )
 			qq = cursor.fetchone( )
 			for i,a in qq.items( ):
 				exps = a
-			cursor.execute( f"SELECT timer FROM Users WHERE user_id= {event.user_id}" )
+			cursor.execute( f"SELECT timer FROM Users WHERE user_id= {user_id}" )
 			qq = cursor.fetchone( )
 			for i,a in qq.items( ):
 				timer = a
 			exp = exps*timer*level*0.6*tenbonus*twentyfivebonus
 			money = timer*exps*level*1.1*fivebonus*fivetybonus
-			send( "[id" + str( event.user_id ) + "|" + first_name + "], ты закончил миссию и получил " + str(int( exp ) ) + " опыта вместе с горой монет(" + str( money ) + ")","missions" )
-			cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )},mtime = 0,mmtime = 0 WHERE user_id = {event.user_id}" )
+			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил миссию и получил " + str(int( exp ) ) + " опыта вместе с горой монет(" + str( int(money) ) + ")","missions" )
+			cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 			connection.commit( )
 		if active == 2:
-			return raid()
+			return raid( user_id)
 		if active == 3:
-			return grouprade()
+			return grouprade( user_id)
+	elif active >= 1 and timestart<timeend:  # Если миссия еще выполняется
+		if int(timeend-monotonic())/60 >= 1:
+			send("[id" + str(user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-monotonic())/60))+" минут.","missions")
+		else:
+			send ( "[id" + str ( user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - monotonic()) ))+ " секунд." , "missions" )
+		cursor.execute(f"UPDATE Users SET mtime = {monotonic()} WHERE user_id={user_id}")
 	#Mission закончился
 	#Рейд одиночный
-def raid():
-	cursor.execute( f"SELECT timer FROM Users WHERE user_id = {event.user_id}" )
+def raid(user_id):
+	cursor.execute( f"SELECT timer FROM Users WHERE user_id = {user_id}" )
 	qq = cursor.fetchone( )
 	for i,a in qq.items( ):
 		timer = a
-	cursor.exexute(f"SELECT mtime FROM Users WHERE user_id = {event.user_id}")
+	cursor.execute(f"SELECT mtime FROM Users WHERE user_id = {user_id}")
 	qq = cursor.fetchone()
 	for i,a in qq.items():
 		timestart = a
 
-	cursor.execute(f"SELECT mmtime FROM Users WHERE user_id={event.user_id}")  # Получаем время миссии
+	cursor.execute(f"SELECT mmtime FROM Users WHERE user_id={user_id}")  # Получаем время миссии
 	qq=cursor.fetchone()
 	for i,a in qq.items():
 		timeend=a
@@ -105,49 +109,54 @@ def raid():
 			timer=random.choice(range(16,31))
 
 			if timer <= 22:
-				send("[id" + str(event.user_id) + "|" + first_name + "], попалась маленькая база, а значит и добыча меньше. Думаю за "+str(timer)+" минут справишся.","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], попалась маленькая база, а значит и добыча меньше. Думаю за "+str(timer)+" минут справишся.","missions")
 				exps = 2
-				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
+				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 			if 22 < timer <= 26:
-				send("[id" + str(event.user_id) + "|" + first_name + "], мы нашли для тебя небольшую базу, что заберешь - все твое! На все это у тебя "+str(timer)+" минут. Удачи!","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], мы нашли для тебя небольшую базу, что заберешь - все твое! На все это у тебя "+str(timer)+" минут. Удачи!","missions")
 				exps = 3
-				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
+				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 			if 28 < timer <= 30:
-				send("[id" + str(event.user_id) + "|" + first_name + "], мы тут нашли базу и скажу тебе она не из самых легких. Огромная база с кучей оружия и людей внутри. Мы с командой даем тебе "+str(timer)+" минут. Что заберешь - все твое.","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], мы тут нашли базу и скажу тебе она не из самых легких. Огромная база с кучей оружия и людей внутри. Мы с командой даем тебе "+str(timer)+" минут. Что заберешь - все твое.","missions")
 				exps = 4
-				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
+				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 
 			timeend = monotonic()+((timer-time2mis)*60)
-			cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 2 WHERE user_id = {event.user_id}")
+			cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 2 WHERE user_id = {user_id}")
 			connection.commit()
 	elif ((timestart < monotonic ( ) < timeend) != True):
 		if active == 1:
-			return mission()
+			return mission(user_id)
 		if active == 2:
-			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {event.user_id}" )
+			cursor.execute( f"SELECT exps FROM Users WHERE user_id = {user_id}" )
 			qq = cursor.fetchone( )
 			for i,a in qq.items( ):
 				exps = a
-			cursor.execute( f"SELECT timer FROM Users WHERE user_id= {event.user_id}" )
+			cursor.execute( f"SELECT timer FROM Users WHERE user_id= {user_id}" )
 			qq = cursor.fetchone( )
 			for i,a in qq.items( ):
 				timer = a
 			exp = exps*timer*1.1*tenbonus*twentyfivebonus
 			money = timer*exps*0.6*fivebonus*fivetybonus
 			bissines = exps*0.7*(timer-time2zav)
-			send( "[id" + str( event.user_id ) + "|" + first_name + "], ты закончил рейд и получил " + str(
+			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил рейд и получил " + str(
 			int( exp ) ) + " опыта вместе с горой монет(" + str( int( money ) ) + "), захватили " + str(
 			int( bissines ) ) + " заводов под ваше управление!","missions" )
 			cursor.execute(
-			f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int( bissines )}, btime = {int( ((timer*60) + monotonic( ))*1.1 )}, bbtime = {int( monotonic( ) )},mtime = 0,mmtime = 0 WHERE user_id = {event.user_id}" )
+			f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int( bissines )}, btime = {int( ((timer*60) + monotonic( ))*1.1 )}, bbtime = {int( monotonic( ) )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 			connection.commit()
 		if active == 3:
-			return grouprade()
+			return grouprade(user_id)
 	elif active >= 1 and timeend>timestart:
-		send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - timestart)/60 ) ) + " минут.","missions" )
+		if int(timeend-monotonic())/60 >= 1:
+			send("[id" + str(user_id) + "|" + first_name + "], вы уже заняты, закончите через "+str(int((timeend-monotonic())/60))+" минут.","missions")
+		else:
+			send ( "[id" + str ( user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - monotonic()) ))+ " секунд." , "missions" )
+		cursor.execute(f"UPDATE Users SET mtime = {monotonic()} WHERE user_id={user_id}")
+		connection.commit()
 	#Рейд окончен
 	#Груповой рейд
-def grouprade():
+def grouprade(user_id):
 	cursor.execute( f"SELECT user_id FROM Users WHERE groupt = {group}" )
 	qq = cursor.fetchall( )
 	con = 0
@@ -155,23 +164,44 @@ def grouprade():
 	for a in qq :
 		list.append ( a )
 		con += 1
-	cursor.execute ( f"SELECT mtime FROM Users WHERE user_id = {event.user_id}" )
+	cursor.execute ( f"SELECT mtime FROM Users WHERE user_id = {user_id}" )
 	qq = cursor.fetchone ( )
 	for i , a in qq.items ( ) :
 		timestart = a
-	cursor.execute( f"SELECT mmtime FROM Users WHERE user_id={event.user_id}" )  # Получаем время миссии
+	cursor.execute( f"SELECT mmtime FROM Users WHERE user_id={user_id}" )  # Получаем время миссии
 	qq = cursor.fetchone( )
 	timeend = 0
 	for i,a in qq.items( ):
 		timeend = a
-	cursor.execute(f"SELECT timer FROM Users WHERE user_id = {event.user_id}")
+	cursor.execute(f"SELECT timer FROM Users WHERE user_id = {user_id}")
 	qq = cursor.fetchone()
 	for i,a in qq.items():
 		timer = a
-	cursor.execute(f"SELECT groupt FROM Users WHERE user_id = {event.user_id}")
-	qq = cursor.fetchone()
-	for i,a in qq.items():
+	cursor.execute(f"SELECT groupt FROM Users WHERE user_id = {user_id}")
+	qq = cursor.fetchone ()
+	for i , a in qq.items () :
 		groupt = a
+
+	cursor.execute ( f"SELECT user_id,active FROM Users WHERE groupt={group}" )
+	qq = cursor.fetchall ()
+	con = 0
+	con1 = 0
+	list = [ ]
+	list1 = [ ]
+	activeall = 0
+	jcon = 0
+	for i in qq :
+		list.append ( i )
+		for a , m in i.items () :
+			con += 1
+			list1.append ( m )
+	texta = ""
+	for i in list1:
+		if i == 1 or i == 2 or i == 3:
+			activeall += 1
+			texta = texta + ( "[id" + str ( jcon ) + "|Участник] сейчас в миссии\n" )
+		jcon = i
+	print(activeall)
 
 	if groupt != 0:
 		cursor.execute ( f"SELECT user_id,level FROM Users WHERE groupt={group}" )
@@ -186,85 +216,93 @@ def grouprade():
 			for a , m in i.items ( ) :
 				con += 1
 				list1.append ( m )
+		text = ""
 		if 1 in list1 :
 			for i in list1:
 				if i == 1 :
-					usend ( "[id" + str ( jcon ) + "|Участник] не имеет 2 уровня" )
+					text = text + ( "[id" + str ( jcon ) + "|Участник] не имеет 2 уровня\n" )
 					con1 += 1
 				jcon = i
-		print(list1)
+		print(list)
 		if con1 == 0:
 			if con/2 >= 2:
 				if active == 0:
-					if level > 1:
-						if groupa == 1:
-							#Основной цикл
-							timer=random.choice(range(22,37))
+					if activeall == 0:
+						if level > 1:
+							if groupa == 1:
+								#Основной цикл
+								timer=random.choice(range(22,37))
 
-							if timer <= 26:
-								send("[id" + str(event.user_id) + "|" + first_name + "], вы нашли базу и залетаете на хату к соседям! Этот рейд займет "+str(timer)+" минут.","missions")
-								exps = 3.5
-								cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
-							if 26 < timer <= 30:
-								send("[id" + str(event.user_id) + "|" + first_name + "], бабка с соседнего подьезда рассказала где есть база с огромным снаряжением. Вы потратите "+str(timer)+" минут своей драгоценной жизни!","missions")
-								exps = 4.5
-								cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
-							if 30 < timer <= 36:
-								send("[id" + str(event.user_id) + "|" + first_name + "], оказывается в подвале есть скрытый склад оружия. Вы с бандой заваливаетесь туда и понимаете, что это займет "+str(timer)+" минут","missions")
-								exps = 5.5
-								cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {event.user_id}")
+								if timer <= 26:
+									send("[id" + str(user_id) + "|" + first_name + "], вы нашли базу и залетаете на хату к соседям! Этот рейд займет "+str(timer)+" минут.","missions")
+									exps = 3.5
+									cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
+								if 26 < timer <= 30:
+									send("[id" + str(user_id) + "|" + first_name + "], бабка с соседнего подьезда рассказала где есть база с огромным снаряжением. Вы потратите "+str(timer)+" минут своей драгоценной жизни!","missions")
+									exps = 4.5
+									cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
+								if 30 < timer <= 36:
+									send("[id" + str(user_id) + "|" + first_name + "], оказывается в подвале есть скрытый склад оружия. Вы с бандой заваливаетесь туда и понимаете, что это займет "+str(timer)+" минут","missions")
+									exps = 5.5
+									cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 
-							timeend = monotonic()+(timer*60)
-							cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 3 WHERE user_id = {event.user_id}")
-							connection.commit()
-							cursor.execute(f"SELECT user_id FROM Users WHERE groupt = {groupt}")
-							qq = cursor.fetchall()
-							list = []
-							list1 = []
-							for i in qq :
-								list.append ( i )
-								for a , m in i.items ( ) :
-									con += 1
-									list1.append ( m )
-							for i in list1:
-								sendtou("Глава отряда начал миссию!",i)
+								timeend = monotonic()+(timer*60)
+								cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 3 WHERE user_id = {user_id}")
+								connection.commit()
+								cursor.execute(f"SELECT user_id FROM Users WHERE groupt = {groupt}")
+								qq = cursor.fetchall()
+								list = []
+								list1 = []
+								for i in qq :
+									list.append ( i )
+									for a , m in i.items ( ) :
+										con += 1
+										list1.append ( m )
+								for i in list1:
+									sendtou("[id" + str ( user_id ) + "|" + first_name + "], глава отряда начал миссию!",i)
+							else:
+								send("[id" + str ( user_id ) + "|" + first_name + "], вы не глава группы что бы начинать эту миссию!","group5")
 						else:
-							send("Вы не глава группы что бы начинать эту миссию!","group5")
+							send("[id" + str ( user_id ) + "|" + first_name + "], нужно иметь хотя бы 2 уровень!")
 					else:
-						send("Нужно иметь хотя бы 2 уровень!")
-
-				elif active >= 1 and timeend>timestart:
-					send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str(int( (timeend - timestart)/60 ) ) + " минут.","missions" )
+						send("[id" + str ( user_id ) + "|" + first_name + "], для начала этой миссии надо что бы все в отряде не учавствовали в миссии!\n" + str(texta))
 				elif ((timestart < monotonic ( ) < timeend) != True):
 					if active == 1:
-						return mission()
+						return mission(user_id)
 					if active == 2:
-						return raid()
+						return raid(user_id)
 					if active == 3:
-						cursor.execute(f"SELECT exps FROM Users WHERE user_id = {event.user_id}")
+						cursor.execute(f"SELECT exps FROM Users WHERE user_id = {user_id}")
 						qq = cursor.fetchone( )
 						for i,a in qq.items( ):
 							exps = a
-						cursor.execute(f"SELECT timer FROM Users WHERE user_id= {event.user_id}")
+						cursor.execute(f"SELECT timer FROM Users WHERE user_id= {user_id}")
 						qq=cursor.fetchone()
 						for i,a in qq.items():
 							timer=a
 						exp = exps*timer*1.8*twentyfivebonus*tenbonus
 						money = timer*exps*1.5*fivebonus*fivetybonus
 						bissines = exps*1.1*(timer-time2zav)
-						send( "[id" + str( event.user_id ) + "|" + first_name + "], вы удачно отхватили " + str(int( exp ) ) + " опыта и " + str( int( money) ) + " PK, захватили "+str(int(bissines))+" бизнесс заводов!","missions" )
-						cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int(bissines)}, btime = {int(((timer*60)+monotonic())*1.1)}, bbtime = {int(monotonic())},mtime = 0,mmtime = 0 WHERE user_id = {event.user_id}" )
+						send( "[id" + str( user_id ) + "|" + first_name + "], вы удачно отхватили " + str(int( exp ) ) + " опыта и " + str( int( money) ) + " PK, захватили "+str(int(bissines))+" бизнесс заводов!","missions" )
+						cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int(bissines)}, btime = {int(((timer*60)+monotonic())*1.1)}, bbtime = {int(monotonic())},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 						connection.commit()
+			elif active >= 1 and timeend>timestart:
+				if int ( timeend - monotonic ( ) )/60 >= 1 :
+					send ( "[id" + str ( user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str (int ( (timeend - monotonic ( ))/60 ) ) + " минут." , "missions" )
+				else:
+					send ( "[id" + str ( user_id ) + "|" + first_name + "], вы уже заняты, закончите через " + str (int ( (timeend - monotonic ( )) ) ) + " секунд." , "missions" )
+				cursor.execute(f"UPDATE Users SET mtime = {monotonic()} WHERE user_id = {user_id}")
+				connection.commit()
 			elif groupa == 1 and group > 0:
-				usend("[id" + str(event.user_id ) + "|" + first_name + "], нужно иметь минимум одного участника в отряде!")
+				usend("[id" + str(user_id ) + "|" + first_name + "], нужно иметь минимум одного участника в отряде!")
 			elif groupa == 0 and group > 0:
-				usend("[id" + str(event.user_id ) + "|" + first_name + "], эту миссию может начать только глава отряда")
+				usend("[id" + str(user_id ) + "|" + first_name + "], эту миссию может начать только глава отряда")
 			elif groupa == 0 and group == 0:
-				usend("[id" + str(event.user_id ) + "|" + first_name + "], вы не в отряде, что бы играть эту миссию")
+				usend("[id" + str(user_id ) + "|" + first_name + "], вы не в отряде, что бы учавствовать в этой миссии")
 		else:
-			usend("[id" + str(event.user_id ) + "|" + first_name + "], для участия у всех участников должен быть 2 уровень!")
+			usend("[id" + str(user_id ) + "|" + first_name + "], для участия у всех участников должен быть 2 уровень!\n"+str(text))
 	else:
-		usend("[id" + str(event.user_id) + "|" + first_name + "], у вас в группе должно находиться минимум 2 участника")
+		usend("[id" + str(user_id) + "|" + first_name + "], у вас в группе должно находиться минимум 2 участника")
 
 
 
@@ -510,15 +548,15 @@ for event in longpoll.listen() :
 
 					if "Секретная миссия" in response:
 						with connection.cursor ( ) as cursor :
-							mission ( )
+							mission ( event.user_id )
 
 					if "Одиночный рейд" in response :
 						with connection.cursor() as cursor:
-							raid()
+							raid( event.user_id )
 
 					if "Совместный рейд" in response:
 						with connection.cursor() as cursor:
-							grouprade()
+							grouprade( event.user_id)
 
 					if "Назад" in response:
 						send("[id" + str(event.user_id) + "|" + first_name + "], вы вернулись в меню." , "menu")
@@ -819,7 +857,7 @@ for event in longpoll.listen() :
 					if "Вступить в отряд" in response:
 						if group == 0:
 							send( "[id" + str(
-								event.user_id ) + "|" + first_name + "], что бы вступить в отряд напишите 'Присоединится КОД_ОТРЯДА'.",
+								event.user_id ) + "|" + first_name + "], что бы вступить в отряд напишите 'Присоединиться КОД_ОТРЯДА'.",
 								  "group1" )
 						elif (group > 0) and (groupa == 0):
 							send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже находитесь в отряде!",
@@ -829,9 +867,9 @@ for event in longpoll.listen() :
 								event.user_id ) + "|" + first_name + "], вы не можете вступить в новый отряд, т.к. в вы уже находитесь в отряде! Вы глава своего отряда!",
 								  "group4" )
 
-					if "Присоединится" in response:
+					if "Присоединиться" in response:
 						code = 0
-						code = response.replace( "Присоединится ","" )
+						code = response.replace( "Присоединиться ","" )
 						result = re.findall( r'\D',str( code ) )
 						dlina = 0
 						for i in code:
