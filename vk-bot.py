@@ -45,15 +45,15 @@ def mission(user_id):
 		timer=random.choice(range(7,21))
 
 		if timer<=10:
-			send("[id" + str(user_id) + "|" + first_name + "], ты начал легкую миссию, это займет "+str(timer)+" минут.","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал легкую миссию, это займет "+str(timer-time2mis)+" минут.","missions")
 			exps=1
 			cursor.execute(f"UPDATE Users SET exps = 1, timer = {timer} WHERE user_id = {user_id}")
 		if timer>=11 and timer<=15:
-			send("[id" + str(user_id) + "|" + first_name + "], ты начал среднюю миссию, тебе придется попотеть, что бы выполнить ее тебе понадобится. "+str(timer)+" минут","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал среднюю миссию, тебе придется попотеть, что бы выполнить ее тебе понадобится. "+str(timer-time2mis)+" минут","missions")
 			exps=2
 			cursor.execute(f"UPDATE Users SET exps = 2, timer = {timer} WHERE user_id = {user_id}")
 		if timer>=16:
-			send("[id" + str(user_id) + "|" + first_name + "], ты начал сложную миссию. Она займет "+str(timer)+" минут. Удачи.","missions")
+			send("[id" + str(user_id) + "|" + first_name + "], ты начал сложную миссию. Она займет "+str(timer-time2mis)+" минут. Удачи.","missions")
 			exps=3
 			cursor.execute(f"UPDATE Users SET exps = 3, timer = {timer} WHERE user_id = {user_id}")
 
@@ -109,20 +109,20 @@ def raid(user_id):
 			timer=random.choice(range(16,31))
 
 			if timer <= 22:
-				send("[id" + str(user_id) + "|" + first_name + "], попалась маленькая база, а значит и добыча меньше. Думаю за "+str(timer)+" минут справишся.","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], попалась маленькая база, а значит и добыча меньше. Думаю за "+str(timer-time2mis)+" минут справишся.","missions")
 				exps = 2
 				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 			if 22 < timer <= 26:
-				send("[id" + str(user_id) + "|" + first_name + "], мы нашли для тебя небольшую базу, что заберешь - все твое! На все это у тебя "+str(timer)+" минут. Удачи!","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], мы нашли для тебя небольшую базу, что заберешь - все твое! На все это у тебя "+str(timer-time2mis)+" минут. Удачи!","missions")
 				exps = 3
 				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 			if 28 < timer <= 30:
-				send("[id" + str(user_id) + "|" + first_name + "], мы тут нашли базу и скажу тебе она не из самых легких. Огромная база с кучей оружия и людей внутри. Мы с командой даем тебе "+str(timer)+" минут. Что заберешь - все твое.","missions")
+				send("[id" + str(user_id) + "|" + first_name + "], мы тут нашли базу и скажу тебе она не из самых легких. Огромная база с кучей оружия и людей внутри. Мы с командой даем тебе "+str(timer-time2mis)+" минут. Что заберешь - все твое.","missions")
 				exps = 4
 				cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 
 			timeend = monotonic()+((timer-time2mis)*60)
-			cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 2 WHERE user_id = {user_id}")
+			cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 2,timer= {timer} WHERE user_id = {user_id}")
 			connection.commit()
 	elif ((timestart < monotonic ( ) < timeend) != True):
 		if active == 1:
@@ -138,12 +138,12 @@ def raid(user_id):
 				timer = a
 			exp = exps*timer*1.1*tenbonus*twentyfivebonus
 			money = timer*exps*0.6*fivebonus*fivetybonus
-			bissines = exps*0.7*(timer-time2zav)
+			bissines = 2.4*(timer+(time2zav/timer))
 			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил рейд и получил " + str(
 			int( exp ) ) + " опыта вместе с горой монет(" + str( int( money ) ) + "), захватили " + str(
 			int( bissines ) ) + " заводов под ваше управление!","missions" )
 			cursor.execute(
-			f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int( bissines )}, btime = {int( ((timer*60) + monotonic( ))*1.1 )}, bbtime = {int( monotonic( ) )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
+			f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int( bissines )}, btime = {int( ((timer-time2zav)*60) + monotonic( ) )}, bbtime = {int( monotonic( ) )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 			connection.commit()
 		if active == 3:
 			return grouprade(user_id)
@@ -247,7 +247,7 @@ def grouprade(user_id):
 									cursor.execute(f"UPDATE Users SET exps = {exps}, timer = {timer} WHERE user_id = {user_id}")
 
 								timeend = monotonic()+(timer*60)
-								cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 3 WHERE user_id = {user_id}")
+								cursor.execute(f"UPDATE Users SET mtime = {monotonic()},mmtime = {timeend},active = 3,timer = {timer} WHERE user_id = {user_id}")
 								connection.commit()
 								cursor.execute(f"SELECT user_id FROM Users WHERE groupt = {groupt}")
 								qq = cursor.fetchall()
@@ -282,9 +282,9 @@ def grouprade(user_id):
 							timer=a
 						exp = exps*timer*1.8*twentyfivebonus*tenbonus
 						money = timer*exps*1.5*fivebonus*fivetybonus
-						bissines = exps*1.1*(timer-time2zav)
+						bissines = 2.4*(timer+(time2zav/timer))
 						send( "[id" + str( user_id ) + "|" + first_name + "], вы удачно отхватили " + str(int( exp ) ) + " опыта и " + str( int( money) ) + " PK, захватили "+str(int(bissines))+" бизнесс заводов!","missions" )
-						cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int(bissines)}, btime = {int(((timer*60)+monotonic())*1.1)}, bbtime = {int(monotonic())},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
+						cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int(bissines)}, btime = {int((((timer-time2zav)*60)+monotonic())*1.1)}, bbtime = {int(monotonic())},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 						connection.commit()
 			elif active >= 1 and timeend>timestart:
 				if int ( timeend - monotonic ( ) )/60 >= 1 :
@@ -430,7 +430,6 @@ for event in longpoll.listen() :
 					for i,a in qq.items():
 						ref = a
 
-				#Заканчиваем опрделелять пользовательские данные
 				fivebonus = 1
 				tenbonus = 1
 				time2mis = 0
@@ -439,27 +438,29 @@ for event in longpoll.listen() :
 				otryad = 0
 				fivetybonus = 1
 				twentyfivebonus = 1
-				if 10000000000 <= items < 19000000000:
-					fivebonus = 1
-				if 19000000000 < items < 19800000000:
+				list = [ ]
+				for i in str ( items ) :
+					list.append ( i )
+				if list [ 1 ] == '9' :
 					fivebonus = 1.05
-				if 19800000000 < items < 19870000000:
+				if list [ 2 ] == '8' :  # Перчатки и маска
 					tenbonus = 1.10
-				if 19870000000 < items < 19876000000:
+				if list [ 3 ] == '7' :  # Пониженый таймер
 					time2mis = 2
-				if 19876000000 < items < 19876500000:
+				if list [ 4 ] == '6' :  # Активное производство
 					time2zav = 2
-				if 19876500000 < items < 19876540000:
+				if list [ 5 ] == '5' :  # Cash Bash НА ВСЕ
 					cashback = 5
-				if 19876540000 < items < 19876543000:
-					time2mis = 7
-				if 19876543000 < items < 19876543200:
+				if list [ 6 ] == '6' :  # Пониженый таймер 2
 					otryad = 10
-				if 19876543200 < items < 19876543210:
+				if list [ 7 ] == '7' :  # Размер отряда
+					time2mis = 7
+					print ( 7 )
+				if list [ 8 ] == '8' :  # Сильное снаряжение
 					fivetybonus = 1.15
-				if 19876543210 < items < 19876543211:
+				if list [ 9 ] == '9' :  # Экзоскелет
 					twentyfivebonus = 1.25
-				if items == 19876543211:
+				if list [ 10 ] == '2' :  # Пониженый таймер 3
 					time2mis = 12
 				# Бонусы ввиде предметов
 
@@ -565,25 +566,27 @@ for event in longpoll.listen() :
 						if items == 10000000001:
 							send("Ваш склад пуст","storage")
 						if items > 10000000001:
+
+
 							text = "[id" + str(event.user_id) + "|" + first_name + "], ваши предметы:\n"
 							if fivebonus == 1.05 and fivetybonus == 1:
-								text = text + "Детектор - +5% получаемых монет\n"
+								text = text + "Детектор +5% получаемых монет\n"
 							elif fivebonus == 1.05 and fivetybonus == 1.15:
-								text = text + "Детектор вместе с сильным снаряжением - +20% получаемых монет\n"
-							if fivebonus == 1 and fivetybonus == 1.15:
-								text = text + "Сильное снаряжение - 15% получаемых монет\n"
-							elif tenbonus == 1.10 and twentyfivebonus == 1:
-								text = text + "Перчатки и маска - +10% получаемого опыта\n"
+								text = text + "Детектор вместе с сильным снаряжением +20% получаемых монет\n"
+							elif fivebonus == 1 and fivetybonus == 1.15:
+								text = text + "Сильное снаряжение 15% получаемых монет\n"
+							if tenbonus == 1.10 and twentyfivebonus == 1:
+								text = text + "Перчатки и маска +10% получаемого опыта\n"
 							elif tenbonus == 1 and twentyfivebonus == 1.25:
-								text = text + "Экзоскелет - +25% получаемого опыта\n"
+								text = text + "Экзоскелет +25% получаемого опыта\n"
 							elif tenbonus == 1.10 and twentyfivebonus == 1.25:
-								text = text + "Перчатки с маской вместе с экзоскелетом - +37% получаемого опыта\n"
+								text = text + "Перчатки с маской вместе с экзоскелетом +37% получаемого опыта\n"
 							if time2mis == 2:
-								text = text + "Пониженый таймер - -2 минуты на выполнении миссии\n"
+								text = text + "Пониженый таймер -2 минуты на выполнении миссии\n"
 							elif time2mis == 7:
-								text = text + "Пониженый таймер - -7 минут на выполнение миссии\n"
+								text = text + "Пониженый таймер -7 минут на выполнение миссии\n"
 							elif time2mis == 12:
-								text = text + "Пониженый таймер - -12 минут на выполнение миссии\n"
+								text = text + "Пониженый таймер -12 минут на выполнение миссии\n"
 							if time2zav == 2:
 								text = text + "Уменьшает время работы завода на 2 минуты\n"
 							if cashback == 5:
@@ -611,8 +614,6 @@ for event in longpoll.listen() :
 						shop = 0
 						shop = response.replace("Купить ","")
 						result = re.findall( r'\D',str(shop))
-						print(shop)
-						print(result)
 						if (result == []) and (1 <= int(shop) <= 10):
 							if int(shop) == 1:
 								if money > 200:
@@ -774,15 +775,15 @@ for event in longpoll.listen() :
 					if "Собрать деньги с завода" in response:
 						if btime > 0 and bissines > 0:
 							if monotonic() > btime:
-								pmoney = ((btime - bbtime)/60)*bissines*0.3
+								pmoney = ((btime - bbtime)/60)*bissines*0.05
 								cursor.execute(f"UPDATE Users SET btime = 0 WHERE user_id = {event.user_id}")
 								send( "[id" + str(event.user_id ) + "|" + first_name + "], вы собрали " + str( pmoney ) + " PK","money" )
 								cursor.execute(f"UPDATE Users SET money = money + {pmoney},bissines = 0,bbtime = 0,btime = 0 WHERE user_id = {event.user_id}" )
 								connection.commit( )
 							elif monotonic() < btime:
-								pmoney = ((monotonic()-bbtime)/60)*bissines*0.3
-								cursor.execute(f"UPDATE Users SET money = money + {pmoney}, bbtime = {monotonic()} WHERE user_id = {event.user_id}")
-								send("[id" + str(event.user_id ) + "|" + first_name + "], вы собрали "+str(pmoney)+" PK","money")
+								pmoney = ((monotonic()-bbtime)/60)*bissines*0.05
+								cursor.execute(f"UPDATE Users SET money = money + {pmoney}, bbtime = {monotonic()},bissines = { bissines-(( ( monotonic()-bbtime )/(btime-bbtime) )*bissines)} WHERE user_id = {event.user_id}")
+								send("[id" + str(event.user_id ) + "|" + first_name + "], вы собрали "+str(int(pmoney))+" PK","money")
 								connection.commit()
 						else:
 							send("У вас нету захваченых заводов!","money")
