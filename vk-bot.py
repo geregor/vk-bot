@@ -7,7 +7,7 @@ from adds import connect
 import pymysql.cursors
 from connection import register
 import re
-import vkcoin
+#import vkcoin
 from vkcoinacc import merchant
 token = '9799c7774f89ef20c6503813c849b5d8e74c975c8d340e223f36ba47478108686da041b9214f8483b48cc'
 
