@@ -1,12 +1,14 @@
 import vk_api
 import random
 from time import monotonic,sleep
+import time
 from vk_api.longpoll import VkEventType, VkLongPoll
 from adds import connect
 import pymysql.cursors
 from connection import register
-import pymysql.cursors
 import re
+import vkcoin
+from vkcoinacc import merchant
 token = '9799c7774f89ef20c6503813c849b5d8e74c975c8d340e223f36ba47478108686da041b9214f8483b48cc'
 
 vk = vk_api.VkApi(token=token)
@@ -74,7 +76,7 @@ def mission(user_id):
 				timer = a
 			exp = exps*timer*level*0.6*tenbonus*twentyfivebonus
 			money = timer*exps*level*1.1*fivebonus*fivetybonus
-			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил миссию и получил " + str(int( exp ) ) + " опыта вместе с горой монет(" + str( int(money) ) + ")","missions" )
+			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил миссию и получил " + str(int( exp ) ) + " опыта вместе с горой монет " + str( int(money) ) + " PK","missions" )
 			cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 			connection.commit( )
 		if active == 2:
@@ -140,7 +142,7 @@ def raid(user_id):
 			money = timer*exps*0.6*fivebonus*fivetybonus
 			bissines = 2.4*(timer+(time2zav/timer))
 			send( "[id" + str( user_id ) + "|" + first_name + "], ты закончил рейд и получил " + str(
-			int( exp ) ) + " опыта вместе с горой монет(" + str( int( money ) ) + "), захватили " + str(
+			int( exp ) ) + " опыта вместе с горой монет " + str( int( money ) ) + " PK, захватили " + str(
 			int( bissines ) ) + " заводов под ваше управление!","missions" )
 			cursor.execute(
 			f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int( bissines )}, btime = {int( ((timer-time2zav)*60) + monotonic( ) )}, bbtime = {int( monotonic( ) )},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
@@ -283,7 +285,7 @@ def grouprade(user_id):
 						exp = exps*timer*1.8*twentyfivebonus*tenbonus
 						money = timer*exps*1.5*fivebonus*fivetybonus
 						bissines = 2.4*(timer+(time2zav/timer))
-						send( "[id" + str( user_id ) + "|" + first_name + "], вы удачно отхватили " + str(int( exp ) ) + " опыта и " + str( int( money) ) + " PK, захватили "+str(int(bissines))+" бизнесс заводов!","missions" )
+						send( "[id" + str( user_id ) + "|" + first_name + "], вы удачно отхватили " + str(int( exp ) ) + " опыта и " + str( int( money) ) + " PK, захватили "+str(int(bissines))+" бизнес заводов!","missions" )
 						cursor.execute(f"UPDATE Users SET active = 0,exp = exp + {int( exp )}, money = money + {int( money )}, bissines = bissines + {int(bissines)}, btime = {int((((timer-time2zav)*60)+monotonic())*1.1)}, bbtime = {int(monotonic())},mtime = 0,mmtime = 0 WHERE user_id = {user_id}" )
 						connection.commit()
 			elif active >= 1 and timeend>timestart:
@@ -304,29 +306,31 @@ def grouprade(user_id):
 	else:
 		usend("[id" + str(user_id) + "|" + first_name + "], у вас в группе должно находиться минимум 2 участника")
 
-
-
 #Основной цикл
 for event in longpoll.listen() :
 	if event.type == VkEventType.MESSAGE_NEW and event.to_me :
 		if event.from_chat or event.from_user :
-
 			responseu = vk.method("users.get" , {"user_ids" : event.user_id})
 			first_name = responseu[0]['first_name']
 			response = event.text
 			connection = connect()
-			register(event.user_id)
+			print(str(event.user_id) +" | " +time.strftime("%d.%m %H:%M") + " | " + str(response))
+			with connection.cursor() as cursor:
+				result = cursor.execute(f"SELECT user_id FROM Users WHERE user_id={event.user_id}")
+				if result == 0:
+					register(event.user_id)
+					send ( "[id" + str (
+						event.user_id ) + "|" + first_name + "], вы зарегистрировались в [public191654681|VKCyberpunk].\nДля получения большей информации о доступных командах напишите {Помощь}. \nНашли баги? Обращайтесь [mlgbet0808|сюда]." ,
+						   "menu" )
 
-			if response == "Начать" :
+			if response == "Начать" or response == "начать" :
 				with connection.cursor() as cursor :
 					result = cursor.execute(f"SELECT user_id FROM Users WHERE user_id={event.user_id}")
 					if result == 0 :
 						register(event.user_id)
-						send("[id" + str(
-							event.user_id) + "|" + first_name + "], вы зарегистрировались в [public191654681|VKCyberpunk].\nДля получения большей информации о доступных командах напишите {Помощь}. \nНашли баги? Обращайтесь [mlgbet0808|сюда]." ,
-							 "menu")
+						send("[id" + str(event.user_id) + "|" + first_name + "], вы зарегистрировались в [public191654681|VKCyberpunk].\nДля получения большей информации о доступных командах напишите {Помощь}. \nНашли баги? Обращайтесь [mlgbet0808|сюда]." ,"menu")
 						connection.commit()
-					else :
+					else:
 						send("[id" + str(event.user_id) + "|" + first_name + "], вы уже зарегистрированы." , "menu")
 
 			with connection.cursor() as cursor :
@@ -393,12 +397,6 @@ for event in longpoll.listen() :
 					for i, a in qq.items():
 						btime = a
 
-				# Определение Лвла
-				cursor.execute(f"SELECT exp FROM Users WHERE user_id = {event.user_id}")
-				qq = cursor.fetchone()
-				if qq != None:
-					for i, a in qq.items():
-						exp = a
 
 				cursor.execute(f"SELECT bbtime FROM Users WHERE user_id = {event.user_id}")
 				qq = cursor.fetchone()
@@ -411,12 +409,6 @@ for event in longpoll.listen() :
 				if qq != None:
 					for i , a in qq.items():
 						chance = a
-
-				cursor.execute(f"SELECT money FROM Users WHERE user_id = {event.user_id}")
-				qq = cursor.fetchone()
-				if qq != None:
-					for i,a in qq.items():
-						money = a
 
 				cursor.execute(f"SELECT items FROM Users WHERE user_id = {event.user_id}")
 				qq = cursor.fetchone()
@@ -484,7 +476,7 @@ for event in longpoll.listen() :
 				if (4960 < exp < 11090) and (level == 4):
 					cursor.execute(f"UPDATE Users SET level = 5 WHERE user_id = {exent.user_id}")
 					level = 5
-					usend("Снова яЮ1213...1Ы&#128122;ФЫ Досто1Но УваЖЕния... ТУТ ПРОБЕЛмы со СВЯзьЮ... 5... 5 уровень... ")
+					usend("Ю1213...1Ы&#128122;ФЫ Досто1Но УваЖЕния... ТУТ ПРОБЕЛмы со СВЯзьЮ... 5... 5 уровень... ")
 					connection.commit()
 				if (11090 < exp < 23670) and (level == 5):
 					cursor.execute(f"UPDATE Users SET level = 6 WHERE user_id = {event.user_id}")
@@ -494,7 +486,7 @@ for event in longpoll.listen() :
 				if (23670 < exp < 48140) and (level == 6):
 					cursor.execute(f"UPDATE Users SET level = 7 WHERE user_id = {event.user_id}")
 					level = 7
-					usend("&#128128;7 уровень&#128128;")
+					usend("&#128128;Ты достиг 7 уровня&#128128;")
 					connection.commit()
 				if (48140 < exp < 95600) and (level == 7):
 					cursor.execute(f"UPDATE Users SET level = 8 WHERE user_id = {event.user_id}")
@@ -510,7 +502,7 @@ for event in longpoll.listen() :
 				if (200000 < exp) and (level == 9):
 					cursor.execute(f"UPDATE Users SET level = 10 WHERE user_id = {event.user_id}")
 					level = 10
-					usend("&#128287; Молодец, теперь твое колличество опыта = твоим деньгам")
+					usend("&#128287; Молодец, теперь твое колличество опыта равно твоим деньгам")
 					expdas = 200000
 					cursor.execute(f"UPDATE Users SET money = {expdas} WHERE user_id = {event.user_id}")
 					connection.commit()
@@ -533,7 +525,6 @@ for event in longpoll.listen() :
 						for i in range(playerscon):
 							if str(exp) in str(list[i]):
 								top = playerscon - i
-
 
 
 						send("[id" + str(event.user_id) + "|" + first_name + "], ваш профиль:\nВы на " + str(
@@ -563,6 +554,12 @@ for event in longpoll.listen() :
 						send("[id" + str(event.user_id) + "|" + first_name + "], вы вернулись в меню." , "menu")
 					#Склад
 					if "Склад" in response:
+						b = [ ]
+						a = items
+						while a > 0 :
+							b.append ( a%10 )
+							a = a//10
+						b = b [ : :-1 ]
 						if items == 10000000001:
 							send("Ваш склад пуст","storage")
 						if items > 10000000001:
@@ -599,123 +596,131 @@ for event in longpoll.listen() :
 
 
 					if "Магазин" in response:
-						usend("[id" + str(event.user_id) + "|" + first_name + "], 1. Детектор (200 PK) - увеличивает колличество получаемых монет с миссий на 5%\n"
-							 " 2. Перчатки и маска (550 PK) - увеличивает колличество получаемого опыта с миссий на 10%\n"
-							 " 3. Пониженый таймер (1250 PK) - время миссий сокращено на 2 минуты\n"
-							 " 4. Активное производство (2780 PK) - уменьшает время работы заводов на 2 минуты\n"
-							 " 5. Cash Back НА ВСЕ (4850 PK) - с 5% шансом возвращает проигранные средства в казино\n"
-							 " 6. Пониженый таймер 2 (8940 PK) - время миссий сокращено на 7 минут\n"
-							 " 7. Размер отряда увеличен до 30 человек (14750 PK)\n"
-							 " 8. Сильное снаряжение (25000 PK) - увеличивает колличество получаемых монет с миссий на 15%\n"
-							 " 9. Экзоскелет (38950 PK) - увеличивает колличество получаемого опыта с миссий на 25%\n"
-							 " 10. Пониженый таймер 3 (50000 PK) - время миссий сокращено на 12 минут\n"
-																			  "Что бы купить предмет используйте 'Купить ID_ПРЕДМЕТА'")
+						usend("[id" + str(event.user_id) + "|" + first_name + "], что бы купить предмет используйте 'Купить ID_ПРЕДМЕТА'\n\n"
+							"1. Детектор (200 PK) - увеличивает колличество получаемых монет с миссий на 5%\n\n"
+							 " 2. Перчатки и маска (550 PK) - увеличивает колличество получаемого опыта с миссий на 10%\n\n"
+							 " 3. Пониженый таймер (1250 PK) - время миссий сокращено на 2 минуты\n\n"
+							 " 4. Активное производство (2780 PK) - уменьшает время работы заводов на 2 минуты\n\n"
+							 " 5. Cash Back НА ВСЕ (4850 PK) - с 5% шансом возвращает проигранные средства в казино\n\n"
+							 " 6. Пониженый таймер 2 (8940 PK) - время миссий сокращено на 7 минут\n\n"
+							 " 7. Размер отряда увеличен до 30 человек (14750 PK)\n\n"
+							 " 8. Сильное снаряжение (25000 PK) - увеличивает колличество получаемых монет с миссий на 15%\n\n"
+							 " 9. Экзоскелет (38950 PK) - увеличивает колличество получаемого опыта с миссий на 25%\n\n"
+							 " 10. Пониженый таймер 3 (60000 PK) - время миссий сокращено на 12 минут\n\n")
+
 					if "Купить " in response:
 						shop = 0
 						shop = response.replace("Купить ","")
 						result = re.findall( r'\D',str(shop))
+						b = [ ]
+						a = items
+						while a > 0 :
+							b.append ( a%10 )
+							a = a//10
+						b = b [ : :-1 ]  # так можно развернуть, если бы нам был важен порядок
+						print ( b )
+						#Покупка бустов
 						if (result == []) and (1 <= int(shop) <= 10):
 							if int(shop) == 1:
-								if money > 200:
-									if items < 19000000000:
+								if balance > 200:
+									if b[1] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 9000000000, money = money - 200 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели детектор! \nВаш баланс - "+str(money-200)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели детектор! \nВаш баланс - "+str(balance-200)+" PK")
 									else:
-										usend("У вас уже приобретен это предмет")
+										usend("У вас уже приобретен этот предмет")
 								else:
-									usend("У вас не хватает денег для покупки! У вас "+str(money)+" PK, а нужно 200.")
+									usend("У вас не хватает денег для покупки! У вас "+str(balance)+" PK, а нужно 200.")
 							if int(shop) == 2:
-								if money > 550:
-									if items < 19800000000:
+								if balance > 550:
+									if b[2] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 800000000, money = money - 550 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели перчатки и маску! \nВаш баланс - "+str(money-550)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели перчатки и маску! \nВаш баланс - "+str(balance-550)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (money ) + " PK, а нужно 550." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str(balance) + " PK, а нужно 550." )
 							if int(shop) == 3:
-								if money > 1250:
-									if items < 19870000000:
+								if balance > 1250:
+									if b[3] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 70000000, money = money - 1250 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер! \nВаш баланс - "+str(balance-1250)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (money ) + " PK, а нужно 1250." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 1250." )
 							if int(shop) == 4:
-								if money > 2780:
-									if items < 19876000000:
+								if balance > 2780:
+									if b[4] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 6000000, money = money - 2780 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели активное производство! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели активное производство! \nВаш баланс - "+str(balance-2780)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (money ) + " PK, а нужно 2780." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str(balance) + " PK, а нужно 2780." )
 							if int(shop) == 5:
-								if money > 4850:
-									if items < 19876500000:
+								if balance > 4850:
+									if b[5] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 500000, money = money - 4850 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели Cash Back! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели Cash Back! \nВаш баланс - "+str(balance-4850)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (money ) + " PK, а нужно 4850." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 4850." )
 							if int(shop) == 6:
-								if money > 8940:
-									if items < 19876540000:
+								if balance > 8940:
+									if b[6] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 40000, money = money - 8940 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер 3! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер 3! \nВаш баланс - "+str(balance-8940)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str ( money ) + " PK, а нужно 8940." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 8940." )
 							if int(shop) == 7:
-								if money > 14750:
-									if items < 19876543000:
+								if balance > 14750:
+									if b[7] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 3000, money = money - 14750 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно увеличили размер отряда до 30 участников! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно увеличили размер отряда до 30 участников! \nВаш баланс - "+str(balance-14750)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str ( money ) + " PK, а нужно 14750." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 14750." )
 							if int(shop) == 8:
-								if money > 25000:
-									if items < 19876543200:
+								if balance > 25000:
+									if b[8] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 200, money = money - 25000 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели сильное снаряжение! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели сильное снаряжение! \nВаш баланс - "+str(balance-25000)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str ( money ) + " PK, а нужно 25000." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 25000." )
 							if int(shop) == 9:
-								if money > 38950:
-									if items < 19876543210:
+								if balance > 38950:
+									if b[9] == 0:
 										cursor.execute(f"UPDATE Users SET items = items + 10, money = money - 38950 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели экзоскелет! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели экзоскелет! \nВаш баланс - "+str(balance-38950)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (
-										money ) + " PK, а нужно 38950." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 38950." )
 							if int(shop) == 10:
-								if money > 50000:
-									if items < 19876543211:
-										cursor.execute(f"UPDATE Users SET items = items + 1, money = money - 50000 WHERE user_id = {event.user_if}")
+								if balance > 50000:
+									if b[10] == 1:
+										cursor.execute(f"UPDATE Users SET items = items + 1, money = money - 50000 WHERE user_id = {event.user_id}")
 										connection.commit()
-										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер 3! \nВаш баланс - "+str(money)+" PK")
+										usend("[id" + str(event.user_id) + "|" + first_name + "], вы успешно приобрели пониженый таймер 3! \nВаш баланс - "+str(balance-50000)+" PK")
 									else :
-										usend ( "У вас уже приобретен это предмет" )
+										usend ( "У вас уже приобретен этот предмет" )
 								else :
-									usend ( "У вас не хватает денег для покупки! У вас " + str (money ) + " PK, а нужно 50000." )
+									usend ( "У вас не хватает денег для покупки! У вас " + str (balance) + " PK, а нужно 50000." )
 
 						else:
 							usend("Неправильно введен ID_ПРЕДМЕТА\n"
@@ -739,7 +744,7 @@ for event in longpoll.listen() :
 						if ref == 0:
 							send("[id" + str(event.user_id) + "|" + first_name + "], ваш реферальный код - "+str(event.user_id)+". Что бы стать вашим рефералом надо, что бы кто то другой написал 'Реферал "+str(event.user_id)+"'"++" \n"
 																																										  " Ваши рефералы: их еще нету!","money")
-						if ref >= 1:
+						if ref >= 1: #Создает код для колличества рефераллов
 							for i in range( ref ):
 								text = text + "" + str( i + 1 ) + ". [id" + str( list1[ i ] ) + "|Реферал]\n"
 								send( "[id" + str(event.user_id) + "|" + first_name + "], ваш реферальный код - " + str(
@@ -759,9 +764,9 @@ for event in longpoll.listen() :
 								con += 1
 							if con == 1:
 								if ref == 0:
-									cursor.execute(f"UPDATE Users SET ref = {referal}money = money + 750 WHERE user_id = {event.user_id}")
+									cursor.execute(f"UPDATE Users SET ref = {referal}, money = money + 750, exp = exp + 250 WHERE user_id = {event.user_id}")
 									connection.commit()
-									send("[id" + str(event.user_id) + "|" + first_name + "], вы стали рефералом и получили бесплатные 750 монет!","money")
+									send("[id" + str(event.user_id) + "|" + first_name + "], вы стали рефералом ["+referal+"|игрока], получили бесплатные 750 монет и 250 опыта!","money")
 									sendtou("[id" + str(event.user_id) + "|" + first_name + "], стал вашим рефералом",int(referal))
 								else:
 									usend("[id" + str(event.user_id) + "|" + first_name + "], вы уже стали чьим-то рефералом.")
@@ -793,6 +798,53 @@ for event in longpoll.listen() :
 																			 " Они же в свою очередь будут приносить временный доход.\n"
 																			 " В любой момент вы можете пополнить VKCoin для прокачки! Курс 1000 VKCoin = 100 PK\n"
 																			 " Для вывода же 100 PK = 950 VKCoin")
+					if "Пополнить VKCoin" in response:
+						result = response.replace("Пополнить ", "")
+						if result == "VKCoin💸📈":
+							usend("Для пополнения VKCoin пропиши: 'Пополнить КОЛЛИЧЕСТВО'.\n"
+							  "Курс 1000 VKCoin к 100 PK")
+					if "Пополнить" in response:
+						result = response.replace("Пополнить ", "")
+						resulti = re.findall(r'\D', str(result))
+						if resulti == []:
+							send("vk.com/coin#x255117463_"+str(int(result)*1000)+"_"+str(random.randint(-2000000,2000000)),"vkcoin")
+							vkcoinactive = time.time()
+						else:
+							usend("Встречены запрещенные символы!")
+
+					if "Проверить" in response:
+						for i in merchant.get_transactions(tx=[2]):
+							print(i)
+							if i['from_id'] == event.user_id:
+								print(i)
+								if i['created_at'] > vkcoinactive and vkcoinactive != 0:
+									print(i)
+									popol = i['amount']
+									cursor.execute(f"UPDATE Users SET money = money + {popol/1000} WHERE user_id = {event.user_id}")
+									send("На ваш баланс зачислено"+popol/1000+" PK. Приятной игры!","money")
+									vkcoinactive = 0
+							#	else:
+							#		usend("От вас не поступало переводов в ближайшее время")
+							#else:
+							#	usend("Не найден перевод от вас")
+
+
+
+
+					if "Вывести VKCoin" in response:
+						result = response.replace("Вывести ", "")
+						if result == "VKCoin💸📉":
+							usend("Для вывода VKCoin пропиши: 'Вывести КОЛЛИЧЕСТВО'.\n"
+							  "Курс 100 PK к 950 VKCoin")
+
+					if "Вывести" in response:
+						result = response.replace("Вывести ", "")
+						resulti = re.findall(r'\D', str(result))
+						if resulti == []:
+							usend(merchant.get_payment_url( amount = int(result) , payload = random.seed(), free_amount=False))
+
+
+
 					#Казино
 					if "Казино" in response:
 						if level >= 2:
@@ -985,11 +1037,10 @@ for event in longpoll.listen() :
 					if "Создать рандомно" in response:
 						if group == 0:
 							group = random.randint( 0,99999999 )
-							cursor.execute(
-								f"UPDATE Users SET groupt = {group},groupa = 1 WHERE user_id = {event.user_id}" )
+							cursor.execute(f"UPDATE Users SET groupt = {group},groupa = 1 WHERE user_id = {event.user_id}" )
 							connection.commit( )
 							send( "[id" + str(
-								event.user_id ) + "|" + first_name + "], вы создали свой отряд! \nЧто бы кто-то присоеденился к вашему отряду пусть он напишет 'Присоеденится " + str(
+								event.user_id ) + "|" + first_name + "], вы создали свой отряд! \nЧто бы кто-то присоединился к вашему отряду пусть он напишет 'Присоеденится " + str(
 								group ) + "'.","group4" )
 						elif (groupa == 0) and (group > 0):
 							send( "[id" + str( event.user_id ) + "|" + first_name + "], вы уже в отряде!","group5" )
